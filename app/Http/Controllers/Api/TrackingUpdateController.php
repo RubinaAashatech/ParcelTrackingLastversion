@@ -14,14 +14,41 @@ class TrackingUpdateController extends Controller
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-            $trackingUpdates = TrackingUpdate::orderBy('created_at', 'desc')->get();
-            return response()->json($trackingUpdates);
+            $trackingUpdates = TrackingUpdate::with('parcel')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->groupBy('parcel_id');
+
+            $parcelHistories = $trackingUpdates->map(function ($updates, $parcelId) {
+                $parcel = $updates->first()->parcel;
+                $latestUpdate = $updates->first();
+    
+                return [
+                    'id' => $parcel->id,
+                    'tracking_number' => $parcel->tracking_number,
+                    'carrier' => $parcel->carrier,
+                    'sending_date' => $parcel->sending_date,
+                    'weight' => $parcel->weight,
+                    'description' => $parcel->description,
+                    'estimated_delivery_date' => $parcel->estimated_delivery_date,
+                    'latest_tracking_update' => [
+                        'id' => $latestUpdate->id,
+                        'status' => $latestUpdate->status,
+                        'location' => $latestUpdate->location,
+                        'description' => $latestUpdate->description,
+                        'notes' => $latestUpdate->notes,
+                        'created_at' => $latestUpdate->created_at->toDateTimeString(),
+                    ]
+                ];
+            });
+    
+            return response()->json($parcelHistories);
         }
         $trackingUpdates = TrackingUpdate::with('parcel.receiver')->latest()->paginate(10);
         $parcels = Parcel::with('receiver')->get();
         return view('admin.trackingupdates.index', compact('trackingUpdates', 'parcels'));
-    }    
-
+    }
+    
     public function updateStatus(Request $request): RedirectResponse
     {
         $validated = $request->validate([
