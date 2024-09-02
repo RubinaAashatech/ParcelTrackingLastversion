@@ -11,12 +11,16 @@ use Illuminate\View\View;
 
 class TrackingUpdateController extends Controller
 {
-    public function index(): View
+    public function index(Request $request)
     {
+        if ($request->expectsJson()) {
+            $trackingUpdates = TrackingUpdate::orderBy('created_at', 'desc')->get();
+            return response()->json($trackingUpdates);
+        }
         $trackingUpdates = TrackingUpdate::with('parcel.receiver')->latest()->paginate(10);
         $parcels = Parcel::with('receiver')->get();
         return view('admin.trackingupdates.index', compact('trackingUpdates', 'parcels'));
-    }
+    }    
 
     public function updateStatus(Request $request): RedirectResponse
     {

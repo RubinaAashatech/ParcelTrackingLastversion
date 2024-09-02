@@ -14,17 +14,27 @@ class ParcelHistoryController extends Controller
      /**
      * Display a listing of the parcel histories.
      */
-    public function index(): View
-{
-    $parcels = Parcel::with(['latestTrackingUpdate' => function ($query) {
-        $query->orderBy('created_at', 'desc');
-    }])
-    ->orderBy('created_at', 'desc')
-    ->paginate(10);
-
-    return view('admin.parcelhistory.index', compact('parcels'));
-}
-
+    public function index(Request $request)
+    {
+        if ($request->expectsJson()) {
+            $parcels = Parcel::with(['latestTrackingUpdate' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();  
+    
+            return response()->json($parcels);
+        }
+    
+        $parcels = Parcel::with(['latestTrackingUpdate' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+    
+        return view('admin.parcelhistory.index', compact('parcels'));
+    }
+    
 
     /**
      * Show the form for creating a new tracking update.
