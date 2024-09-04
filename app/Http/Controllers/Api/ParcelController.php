@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+
 
 class ParcelController extends Controller
 {
@@ -49,7 +51,6 @@ class ParcelController extends Controller
     
         if ($request->filled('customer_id')) {
             $selectedCustomer = Customer::find($request->input('customer_id'));
-            // You can remove fetching customer address if it's no longer required
         }
     
         if ($request->filled('receiver_id')) {
@@ -93,15 +94,14 @@ class ParcelController extends Controller
         'description' => 'nullable|string|max:255',
         'estimated_delivery_date' => 'required|date',
     ]);
-
-    // Create the parcel and auto-generate the tracking number
     $parcel = Parcel::create($validated);
-
-    // Fetch the auto-generated tracking number
-    $trackingNumber = $parcel->tracking_number; 
+    $trackingNumber = $parcel->tracking_number;
 
     if ($request->expectsJson()) {
-        return response()->json($parcel, 201); // 201 Created
+        return response()->json([
+            'parcel' => $parcel,
+            'barcode' => $parcel->barcode_image
+        ], 201);
     }
 
     return redirect()->route('api.parcels.index')->with('success', "Parcel added successfully. Tracking Number: $trackingNumber");
@@ -176,15 +176,37 @@ class ParcelController extends Controller
         try {
             $parcel->delete();
             if (request()->expectsJson()) {
-                return response()->json(null, 204); // 204 No Content
+                return response()->json(null, 204); 
             }
             return redirect()->route('api.parcels.index')->with('success', 'Parcel deleted successfully.');
         } catch (\Exception $e) {
             if (request()->expectsJson()) {
-                return response()->json(['error' => 'Failed to delete parcel.'], 500); // 500 Internal Server Error
+                return response()->json(['error' => 'Failed to delete parcel.'], 500); 
             }
             return redirect()->route('api.parcels.index')->with('error', 'Failed to delete parcel.');
         }
     }
+
+    public function forward(Request $request, Parcel $parcel): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'forwarder_number' => 'required|string|max:255',
+        ]);
+    
+        $parcel->update([
+            'forwarder_number' => $validated['forwarder_number'],
+        ]);
+    
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Forwarding Number added successfully.',
+                'data' => $parcel
+            ], 200);
+        }
+    
+        return redirect()->route('api.parcels.index')->with('success', 'Forwarding Number added successfully.');
+    }
+
 }
 

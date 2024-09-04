@@ -14,7 +14,8 @@
     <table class="table table-bordered mt-4">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>SN</th>
+                {{-- <th>ID</th> --}}
                 <th>Tracking Number</th>
                 <th>Receiver Name</th>
                 <th>Status</th>
@@ -27,9 +28,10 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($trackingUpdates as $update)
+            @foreach($trackingUpdates as $index => $update)
             <tr id="row-{{ $update->id }}" data-disabled="false">
-                <td>{{ $update->id }}</td>
+                <td>{{ $index + 1 }}</td>
+                {{-- <td>{{ $update->id }}</td> --}}
                 <td>{{ $update->tracking_number }}</td>
                 <td>{{ $update->parcel->receiver->fullname ?? 'N/A' }}</td>
                 <td>{{ $update->status }}</td>
@@ -39,7 +41,7 @@
                 <td>{{ $update->created_at->format('Y-m-d') }}</td>
                 <td>{{ $update->updated_at->format('Y-m-d') }}</td>
                 <td>
-                    <a href="{{ route('api.tracking-updates.edit', $update) }}" class="btn btn-warning btn-sm edit-btn">Edit</a>
+                    {{-- <a href="{{ route('api.tracking-updates.edit', $update) }}" class="btn btn-warning btn-sm edit-btn">Edit</a> --}}
                     <button type="button" class="btn btn-info btn-sm update-status-btn" 
                             onclick="openUpdateStatusModal('{{ $update->id }}')">Update Status</button>
                     {{-- <button type="button" class="btn btn-danger btn-sm disable-btn" 
@@ -83,8 +85,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">Notes</label>
-                            <input type="text" class="form-control" id="notes" name="notes">
-                        </div>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

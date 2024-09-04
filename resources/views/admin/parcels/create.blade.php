@@ -8,7 +8,7 @@
             <label for="customer_id">Customer</label>
             <select class="form-control" id="customer_id" name="customer_id" onchange="this.form.submit()">
                 <option value="">Select a Customer</option>
-                @foreach($customers as $customer)
+                @foreach($customers->sortByDesc('created_at') as $customer)
                     <option value="{{ $customer->id }}" {{ $selectedCustomer && $selectedCustomer->id == $customer->id ? 'selected' : '' }}>
                         {{ $customer->fullname }}
                     </option>
@@ -22,7 +22,7 @@
             <label for="receiver_id">Receiver</label>
             <select class="form-control" id="receiver_id" name="receiver_id" onchange="this.form.submit()">
                 <option value="">Select a Receiver</option>
-                @foreach($receivers as $receiver)
+                @foreach($receivers->sortByDesc('created_at') as $receiver)
                     <option value="{{ $receiver->id }}" {{ $selectedReceiver && $selectedReceiver->id == $receiver->id ? 'selected' : '' }}>
                         {{ $receiver->fullname }}
                     </option>

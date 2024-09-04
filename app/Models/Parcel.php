@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class Parcel extends Model
 {
@@ -16,6 +17,9 @@ class Parcel extends Model
         'weight',
         'description',
         'estimated_delivery_date',
+        'forwarder_number',
+        'barcode',
+        'barcode_image',
     ];
 
     protected $casts = [
@@ -26,7 +30,6 @@ class Parcel extends Model
     protected static function booted()
     {
         static::created(function ($parcel) {
-            // Create a default tracking update when a new parcel is created
             TrackingUpdate::create([
                 'parcel_id' => $parcel->id,
                 'status' => 'KTM Nepal Logistics',
@@ -34,12 +37,6 @@ class Parcel extends Model
                 'description' => $parcel->description,
                 'tracking_number' => $parcel->tracking_number,
             ]);
-        });
-
-        static::creating(function ($parcel) {
-            if (empty($parcel->tracking_number)) {
-                $parcel->tracking_number = static::generateTrackingNumber();
-            }
         });
     }
 
@@ -66,5 +63,21 @@ class Parcel extends Model
 public function trackingUpdates()
 {
     return $this->belongsToMany(TrackingUpdate::class, 'parcel_tracking_update');
+}
+
+public static function boot()
+{
+    parent::boot();
+
+    static::creating(function ($parcel) {
+        if (empty($parcel->tracking_number)) {
+            $parcel->tracking_number = static::generateTrackingNumber();
+        }
+
+        $generator = new BarcodeGeneratorPNG();
+        $barcode = $parcel->tracking_number;
+        $parcel->barcode = $barcode;
+        $parcel->barcode_image = base64_encode($generator->getBarcode($barcode, $generator::TYPE_CODE_128));
+    });
 }
 }

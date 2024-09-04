@@ -15,7 +15,8 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Parcel ID</th>
+                <th>SN</th>
+                {{-- <th>Parcel ID</th> --}}
                 <th>Tracking Number</th>
                 <th>Carrier</th>
                 <th>Current Status</th>
@@ -25,9 +26,10 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($parcels as $parcel)
+            @forelse($parcels as $index => $parcel)
                 <tr>
-                    <td>{{ $parcel->id }}</td>
+                    <td>{{ $index + 1 }}</td>
+                    {{-- <td>{{ $parcel->id }}</td> --}}
                     <td>{{ $parcel->tracking_number }}</td>
                     <td>{{ $parcel->carrier }}</td>
                     <td>{{ $parcel->latestTrackingUpdate->status ?? 'N/A' }}</td>
@@ -37,7 +39,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6">No parcel history found.</td>
+                    <td colspan="8">No parcel history found.</td>
                 </tr>
             @endforelse
         </tbody>

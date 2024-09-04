@@ -4,7 +4,7 @@
 
 <div class="container">
     <h1>Receivers List</h1>
-    <a href="{{ route('api.receivers.create') }}" class="btn btn-primary mb-3">Add New Receiver</a>
+    {{-- <a href="{{ route('api.receivers.create') }}" class="btn btn-primary mb-3">Add New Receiver</a> --}}
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
@@ -13,6 +13,7 @@
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>SN</th>
                 <th>Fullname</th>
                 <th>Country</th>
                 <th>State</th>
@@ -27,6 +28,7 @@
         <tbody>
             @foreach($receivers as $receiver)
             <tr>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $receiver->fullname }}</td>
                 <td>{{ $receiver->country }}</td>
                 <td>{{ $receiver->state }}</td>

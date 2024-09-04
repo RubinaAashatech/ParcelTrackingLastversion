@@ -64,12 +64,14 @@ Route::get('parcels/{parcel}', [ParcelController::class, 'show'])->name('api.par
 Route::get('parcels/{parcel}/edit', [ParcelController::class, 'edit'])->name('api.parcels.edit');
 Route::put('parcels/{parcel}', [ParcelController::class, 'update'])->name('api.parcels.update');
 Route::delete('parcels/{parcel}', [ParcelController::class, 'destroy'])->name('api.parcels.destroy');
+Route::post('/parcels/{parcel}/forward', [ParcelController::class, 'forward'])->name('api.parcels.forward');
+
 
 Route::get('parcel-histories', [ParcelHistoryController::class, 'index'])->name('api.parcel-histories.index');
 Route::get('parcel-histories/create', [ParcelHistoryController::class, 'create'])->name('api.parcel-histories.create');
 Route::post('parcel-histories', [ParcelHistoryController::class, 'store'])->name('api.parcel-histories.store');
 
 Route::post('/track', [FrontViewController::class, 'track'])->name('api.track');
-
+route::post('/scan-barcode', [FrontViewController::class, 'scanBarcode'])->name('api.scanBarcode');
 });
 
